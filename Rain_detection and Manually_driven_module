@@ -1,0 +1,50 @@
+//me-s-auQ9rjPi-KsSlaQmpWZVih6FJ-J
+#define BLYNK_PRINT Serial
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <Servo.h>
+#define Grove_Water_Sensor D1
+int servoPin = D2;
+int doorpin=D3;
+
+Servo servo;
+Servo door;
+Servo servo1;
+
+char auth[] = "me-s-auQ9rjPi-KsSlaQmpWZVih6FJ-J";
+char ssid[] = "adult_dude";
+char pass[] = "ldk123456";
+
+BLYNK_WRITE(V3) {
+
+servo.write(param.asInt());
+
+}
+BLYNK_WRITE(V4)
+{
+  door.write(0);
+}
+BLYNK_WRITE(V5)
+{
+  door.write(90);
+}
+
+
+void setup()
+{
+  Serial.begin(9600);
+  Blynk.begin(auth, ssid, pass);
+
+  servo.attach(servoPin);
+  door.attach(doorpin);
+ }
+
+void loop()
+{
+
+  Blynk.run();
+  if( digitalRead(Grove_Water_Sensor) == 0 ) {
+      servo.write(0);
+
+}
+}
