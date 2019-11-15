@@ -1,0 +1,145 @@
+#define BLYNK_PRINT Serial
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <DHT.h>
+#include <Servo.h>
+#include "DHT.h"
+char auth[] = "ENbIz0CY_RbX7uxJhqPGklNv3wv9OOkP";
+char ssid[] = "adult_dude";
+char pass[] = "hatpagal1";
+
+#define RedPin D0
+#define GrnPin D1
+#define BluPin D2
+#define pirpin D8
+#define Grove_Water_Sensor D3
+#define zeRGBa V0
+#define mq1pin A0
+int value=0;
+int servoPin = D5;
+int doorpin=D6;
+int doorpin1=D7;
+int rrr, ggg, bbb;
+Servo servo;
+Servo door;
+Servo door1;
+#define DHTPIN D4
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
+BlynkTimer timer;
+void senddata()
+{
+  value = analogRead(mq1pin);
+  Blynk.virtualWrite(V15,value);//Parts per million (PPM) is a unit of measurement used when expressing a very dilute concentration level of pollutants in the air, water and other fluids. ... Thus, PPM refers to one item in a million of anything of the same size.
+}
+
+BLYNK_WRITE(V7) {
+
+servo.write(param.asInt());
+
+}
+BLYNK_WRITE(V8)
+{
+  door.write(0);
+}
+BLYNK_WRITE(V9)
+{
+  door.write(90);
+}
+BLYNK_WRITE(V10)
+{
+door1.write(param.asInt());
+}
+
+BlynkTimer timer1;
+
+void myTimerEvent()
+{
+  bool state=digitalRead(pirpin);
+  if(state==HIGH)
+  {
+    Serial.println("detected");
+    Blynk.notify("koi aya hai bro. !!!!!!!");
+    }
+    else
+    {
+      Serial.println("kuch nhi hai");
+
+      }
+
+
+  Blynk.virtualWrite(V12, millis() / 1000);
+}
+
+BLYNK_WRITE(zeRGBa) {
+  rrr = param[0].asInt();
+  ggg = param[1].asInt();
+  bbb = param[2].asInt();
+  RGB();
+}
+
+
+
+void RGB() {
+
+
+  analogWrite(RedPin, (255 - rrr) * 4 + 4);
+  analogWrite(GrnPin, (255 - ggg) * 4 + 4);
+  analogWrite(BluPin, (255 - bbb) * 4 + 4);
+
+}
+
+BlynkTimer timer2;
+
+void senddhtdata()
+{
+  int h = dht.readHumidity();
+  int t = dht.readTemperature();
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+  Blynk.virtualWrite(V1 ,h);
+  Blynk.virtualWrite(V2 ,t);
+
+  }
+//void rainsensor()
+//{
+      //if( digitalRead(Grove_Water_Sensor) == 0 ) {
+      //servo.write(0);
+//}
+//}
+
+void setup() {
+  Serial.begin(9600);
+  Blynk.begin(auth, ssid, pass);
+  pinMode(RedPin, OUTPUT);
+  pinMode(mq1pin,INPUT);
+  pinMode(GrnPin, OUTPUT);
+  pinMode(BluPin, OUTPUT);
+  pinMode(pirpin,INPUT);
+  servo.write(0);
+  door.write(0);
+  door1.write(0);
+  timer2.setInterval(1000L ,senddhtdata);
+  dht.begin();
+  timer1.setInterval(1000L, myTimerEvent);
+  timer.setInterval(1000L ,senddata);
+  servo.attach(servoPin);
+  door.attach(doorpin);
+  door1.attach(doorpin1);
+}
+
+
+void loop() {
+  Blynk.run();
+  timer1.run();
+  timer.run();
+  timer2.run();
+  //rainsensor.run();
+ if( digitalRead(Grove_Water_Sensor) == 0 ) { //write a function in place of this which is capable of doing this task
+      servo.write(0);
+      delay(2000);
+      }
+}
