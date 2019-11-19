@@ -104,12 +104,13 @@ void senddhtdata()
   Blynk.virtualWrite(V2 ,t);
 
   }
-//void rainsensor()
-//{
-      //if( digitalRead(Grove_Water_Sensor) == 0 ) {
-      //servo.write(0);
-//}
-//}
+void rainsensor()
+{
+      if( digitalRead(Grove_Water_Sensor) == 0 )
+      {
+       servo.write(0);
+      }
+}
 
 void setup() {
   Serial.begin(9600);
@@ -137,9 +138,9 @@ void loop() {
   timer1.run();
   timer.run();
   timer2.run();
-  //rainsensor.run();
- if( digitalRead(Grove_Water_Sensor) == 0 ) { //write a function in place of this which is capable of doing this task
-      servo.write(0);
-      delay(2000);
+  rainsensor();
+ //if( digitalRead(Grove_Water_Sensor) == 0 ) { //write a function in place of this which is capable of doing this task
+      //servo.write(0);
+      //delay(2000);
       }
 }
